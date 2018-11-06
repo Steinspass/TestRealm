@@ -21,11 +21,14 @@ public class MyAplication extends Application {
     public void onCreate() {
         super.onCreate();
 
-        RealmConfiguration config = new RealmConfiguration
-                .Builder(getApplicationContext())
+        RealmConfiguration.Builder config = new RealmConfiguration.Builder()
                 .deleteRealmIfMigrationNeeded()
-                .build();
+                .build()
+
         Realm.setDefaultConfiguration(config);
+        Realm.init(getApplicationContext());
+
+
 
         Realm realm = Realm.getInstance(config);
         PersonID = setAtomicId(realm, Person.class);
@@ -38,5 +41,4 @@ public class MyAplication extends Application {
         RealmResults<T> results = realm.where(anyClass).findAll();
         return (results.size() > 0) ? new AtomicInteger(results.max("Id").intValue()) : new AtomicInteger();
     }
-
 }
