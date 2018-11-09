@@ -2,6 +2,7 @@ package com.example.ndpsh.testrealm.application;
 
 import android.app.Application;
 
+
 import com.example.ndpsh.testrealm.models.Dog;
 import com.example.ndpsh.testrealm.models.Person;
 
@@ -20,25 +21,23 @@ public class MyAplication extends Application {
     @Override
     public void onCreate() {
         super.onCreate();
+        setUpRealmConfig();
 
-        RealmConfiguration.Builder config = new RealmConfiguration.Builder()
-                .deleteRealmIfMigrationNeeded()
-                .build()
-
-        Realm.setDefaultConfiguration(config);
-        Realm.init(getApplicationContext());
-
-
-
-        Realm realm = Realm.getInstance(config);
-        PersonID = setAtomicId(realm, Person.class);
-        DogID = setAtomicId(realm, Dog.class);
+        Realm realm = Realm.getDefaultInstance();
+        PersonID = getIdByTable(realm, Person.class);
+        DogID = getIdByTable(realm, Dog.class);
 
         realm.close();
     }
 
-    private <T extends RealmObject> AtomicInteger setAtomicId(Realm realm, Class<T> anyClass) {
+    private void setUpRealmConfig() {
+        Realm.init(this);
+        RealmConfiguration config = new RealmConfiguration.Builder().deleteRealmIfMigrationNeeded().build();
+        Realm.setDefaultConfiguration(config);
+    }
+
+    private <T extends RealmObject> AtomicInteger getIdByTable(Realm realm, Class<T> anyClass) {
         RealmResults<T> results = realm.where(anyClass).findAll();
-        return (results.size() > 0) ? new AtomicInteger(results.max("Id").intValue()) : new AtomicInteger();
+        return (results.size()>0) ? new AtomicInteger(results.max("id").intValue()) : new AtomicInteger();
     }
 }
